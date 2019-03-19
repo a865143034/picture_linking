@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>func</title>
+    <script>
+        window.onload=function(){
+            //alert("abc");
+            document.getElementsByTagName("a")[0].onclick=function(){
+
+                var request=new XMLHttpRequest();
+                //var url=this.href;
+                //肯定是<a>调用，所以this就指向a
+                var url=this.href;
+                //alert(url);
+                var method="GET";
+
+                request.open(method,url);
+                request.send(null);
+
+                //接收
+                request.onreadystatechange=function(){
+                    if(request.readyState==4){
+                        if(request.status==200||request.status==304){
+                            //alert(request.responseText);
+                            var result=request.responseText;
+                            var object=eval("("+result+")");
+
+                            var name=object.person.name;
+                            var website=object.person.wensite;
+                            var email=object.person.email;
+
+                            var aNode=document.createElement("a");
+                            aNode.appendChild(document.createTextNode(name));
+
+                        }
+                    }
+                }
+            return false;
+            }
+        }
+    </script>
+</head>
+<body>
+<a href="ajax">HelloAjax!</a>
+{{ data }}
+
+</body>
+</html>
