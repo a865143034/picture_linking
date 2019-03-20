@@ -42,6 +42,16 @@ def func(url):
 def hello(request):
     return render(request,'index.html')
 
+from pycorenlp import StanfordCoreNLP
+def ner(text):
+    nlp = StanfordCoreNLP('http://localhost:8098')
+    output = nlp.annotate(text, properties={
+        'annotators': 'tokenize,ssplit,ner',
+        'outputFormat': 'json',
+    })
+    #print(output['sentences']['entitymentions'])
+    return output['sentences'][0]['entitymentions']
+
 def linking(request):
     f=open('output_enwiki.txt','r')
     m={}
@@ -54,22 +64,18 @@ def linking(request):
     if request.method == "POST":
         ans=""
         text=request.POST['text']
-        words = nltk.word_tokenize(text)
-        for word in words:
-            wrd=word.lower()
+        dic=ner(text)
+        for i in dic:
+            tmp=i['text']
+            wrd=tmp.lower()
             if wrd in m:
                t1=func(m[wrd])
-               if not t1:
-                  ans+=wrd+" "
-                  continue
-               tmp="<a href=\'"+t1+"\' class=\'hyper\' target=\'_blank\'>"+wrd+" "+"</a>"
-               ans+=tmp
-            else:
-               ans+=wrd+" "	
+               if not t1:continue
+               ans_tmp="<a href=\'"+t1+"\' class=\'hyper\' target=\'_blank\'>"+tmp+"</a>"
+               text=text.replace(tmp,ans_tmp)
         return HttpResponse(
             json.dumps({
-                "text":text,
-		"ans":ans,
+		"ans":text,
             }))
 
 
