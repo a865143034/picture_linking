@@ -42,15 +42,38 @@ def func(url):
 def hello(request):
     return render(request,'index.html')
 
+
 from pycorenlp import StanfordCoreNLP
+#nlp = StanfordCoreNLP('http://202.120.38.146:8098')
+
 def ner(text):
-    nlp = StanfordCoreNLP('http://localhost:8098')
+    nlp = StanfordCoreNLP('http://202.120.38.146:8098/')
+    #nlp = StanfordCoreNLP('http://localhost:8098/')
     output = nlp.annotate(text, properties={
         'annotators': 'tokenize,ssplit,ner',
         'outputFormat': 'json',
     })
-    #print(output['sentences']['entitymentions'])
-    return output['sentences'][0]['entitymentions']
+    return output['sentences']
+
+def trim(text):
+    entitys=ner(text)
+    lst=[]
+    for entity in entitys:
+        dic1=entity['entitymentions']
+        all_obj=entity['tokens']
+        for obj1 in dic1:
+            tmp=obj1['text']
+            start=obj1['tokenBegin']
+            end=obj1['tokenEnd']
+            all_obj[start]={'originalText':tmp}
+            for num in range(start+1,end):
+                all_obj[num]=""
+        for obj in all_obj:
+            if not obj:continue
+            lst.append(obj['originalText'])
+    return lst
+
+
 
 def linking(request):
     f=open('output_enwiki.txt','r')
@@ -64,18 +87,21 @@ def linking(request):
     if request.method == "POST":
         ans=""
         text=request.POST['text']
-        dic=ner(text)
-        for i in dic:
-            tmp=i['text']
-            wrd=tmp.lower()
+        dic=trim(text)
+        for obj in dic:
+            wrd=obj.lower()
             if wrd in m:
                t1=func(m[wrd])
-               if not t1:continue
-               ans_tmp="<a href=\'"+t1+"\' class=\'hyper\' target=\'_blank\'>"+tmp+"</a>"
-               text=text.replace(tmp,ans_tmp)
+               if not t1:
+                  ans+=obj+" "
+                  continue
+               ans_tmp="<a href=\'"+t1+"\' class=\'hyper\' target=\'_blank\'>"+obj+"</a>"
+               ans+=ans_tmp+" "
+            else:
+               ans+=obj+" "
         return HttpResponse(
             json.dumps({
-		"ans":text,
+		"ans":ans,
             }))
 
 
