@@ -145,7 +145,41 @@ def get_img_dic(url_list):
         data=ans_queue.get()
         dic_[data[0]]=data[1]
     return dic_
+'''
+import queue
+import threading
+import time
+class myThread (threading.Thread):
+    def __init__(self,url):
+        threading.Thread.__init__(self)
+        self.url=url
+    def run(self):
+        self.process_data()
+    #@staticmethod
+    def process_data(self):
+        tmp_ans=func(self.url[1])
+        ans_queue.put((self.url[0],tmp_ans))
 
+
+def thread_caw(urlList):
+    global ans_queue
+    ans_queue=queue.Queue()
+    threads = []
+    for url in urlList:
+        thread = myThread(url)
+        thread.start()
+        threads.append(thread)
+    for t in threads:
+        t.join()
+
+def get_img_dic(url_list):
+    thread_caw(url_list)
+    dic_={}
+    while not ans_queue.empty():
+        data=ans_queue.get()
+        dic_[data[0]]=data[1]
+    return dic_
+'''
 def linking(request):
     f=open('output_enwiki.txt','r')
     m={}
@@ -159,13 +193,15 @@ def linking(request):
         ans=""
         text=request.POST['text']
         dic=trim(text)
-        st=time.time()
         nxt_list=[]
         for obj in dic:
             wrd=obj.lower()
             if wrd in m:
                 nxt_list.append((wrd,m[wrd]))
+        st=time.time()
         dic_=get_img_dic(nxt_list)
+        end=time.time()
+        print(end-st)
         for obj in dic:
             wrd=obj.lower()
             if wrd in m:
@@ -177,8 +213,6 @@ def linking(request):
                ans+=ans_tmp+" "
             else:
                ans+=obj+" "
-        end=time.time()
-        print(end-st)
         return HttpResponse(
             json.dumps({
                 "ans": ans,
