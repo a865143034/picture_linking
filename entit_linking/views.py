@@ -118,7 +118,7 @@ def thread_caw(urlList):
     workQueue=queue.Queue()
     queueLock=threading.Lock()
     ans_queue=queue.Queue()
-    threadnum=20
+    threadnum=8
     threads = []
 
     for threadID in range(threadnum):
@@ -159,6 +159,7 @@ def linking(request):
         ans=""
         text=request.POST['text']
         dic=trim(text)
+        st=time.time()
         nxt_list=[]
         for obj in dic:
             wrd=obj.lower()
@@ -176,10 +177,44 @@ def linking(request):
                ans+=ans_tmp+" "
             else:
                ans+=obj+" "
+        end=time.time()
+        print(end-st)
         return HttpResponse(
             json.dumps({
                 "ans": ans,
             }))
 
 
-
+'''
+def linking(request):
+    f=open('output_enwiki.txt','r')
+    m={}
+    for line in f:
+        try:
+           line=line.strip().split('\t')
+           m[line[0].lower()]=line[1]
+        except:
+           continue
+    if request.method == "POST":
+        ans=""
+        text=request.POST['text']
+        dic=trim(text)
+        st=time.time()
+        for obj in dic:
+            wrd=obj.lower()
+            if wrd in m:
+               t1=func(m[wrd])
+               if not t1:
+                  ans+=obj+" "
+                  continue
+               ans_tmp="<a href=\'"+t1+"\' class=\'hyper\' target=\'_blank\'>"+obj+"</a>"
+               ans+=ans_tmp+" "
+            else:
+               ans+=obj+" "
+        end=time.time()
+        print(end-st)
+        return HttpResponse(
+            json.dumps({
+                "ans":ans,
+            }))
+'''
