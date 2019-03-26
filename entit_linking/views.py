@@ -57,8 +57,8 @@ from pycorenlp import StanfordCoreNLP
 #nlp = StanfordCoreNLP('http://202.120.38.146:8098')
 
 def ner(text):
-    nlp = StanfordCoreNLP('http://202.120.38.146:8098/')
-    #nlp = StanfordCoreNLP('http://localhost:8098/')
+    #nlp = StanfordCoreNLP('http://202.120.38.146:8098/')
+    nlp = StanfordCoreNLP('http://localhost:8098/')
     output = nlp.annotate(text, properties={
         'annotators': 'tokenize,ssplit,ner',
         'outputFormat': 'json',

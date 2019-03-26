@@ -104,16 +104,18 @@
                            $("#addo").css("left", xPos);
                            $("#addo").css("top", yPos);
                          });
-                         $(".hyper").hover(
+                        $(".hyper").hover(
                               function(){
-                                var img_src=$(this).attr('href');
+				var img_src=$(this).attr('href');
                                 $('img').attr('src',img_src);
-                                $("#addo").fadeIn();
-                              },
+                                timer=setTimeout(function(){
+                                      $("#addo").show(500);
+                                },1000);
+                   	      },
                               function(){
-                                $("#addo").fadeOut();
-                              }
-                         );
+                                clearTimeout(timer);
+                                $("#addo").hide(500);
+                        });
                     }
                 });
                 return false;

@@ -50,12 +50,16 @@
                          });
                          $(".hyper").hover(
                               function(){
-				var img_src=$(this).attr('href');
-				$('img').attr('src',img_src);
-                                $("#addo").fadeIn();
+				timer=setTimeout(function(){
+                    	              var img_src=$(this).attr('href');
+                          	      $('img').attr('src',img_src);
+                               	      $("#addo").sileDown();	
+				}
+				);
                               },
                               function(){
-                                $("#addo").fadeOut();
+				clearTimeout(timer);
+                                $("#addo").slideUp();
                               }
                          );
                     }
