@@ -180,6 +180,20 @@ def get_img_dic(url_list):
         dic_[data[0]]=data[1]
     return dic_
 '''
+
+def explaining(request):
+     if request.method == "POST":
+     	url=request.POST['href']
+     	htm=getHTMLText(url)
+     	img=parse_(htm)
+     	return HttpResponse(
+            json.dumps({
+                "ans":img,
+            }))
+
+
+     
+
 def linking(request):
     f=open('output_enwiki.txt','r')
     m={}
@@ -197,15 +211,7 @@ def linking(request):
         for obj in dic:
             wrd=obj.lower()
             if wrd in m:
-                nxt_list.append((wrd,m[wrd]))
-        st=time.time()
-        dic_=get_img_dic(nxt_list)
-        end=time.time()
-        print(end-st)
-        for obj in dic:
-            wrd=obj.lower()
-            if wrd in m:
-               t1=dic_[wrd]
+               t1=m[wrd]
                if not t1:
                   ans+=obj+" "
                   continue

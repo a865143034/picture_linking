@@ -75,6 +75,26 @@
                 }
             }
     </style>
+<script>
+    function func(href_){
+	var img;
+        $.ajax({
+            type: "POST",
+            url: 'explain/',
+	    async:false,
+            data: {
+                href:href_,
+                time:new Date(),
+                csrfmiddlewaretoken:'{{ csrf_token }}',
+            },
+            success: function (result) {
+                data = JSON.parse(result);
+                img = data['ans'];
+            }
+        });
+	return img;
+    }
+</script>
 
     <script>
         $(function() {
@@ -94,10 +114,7 @@
                         $('div.spinner').hide();
                         data=JSON.parse(result);
                         ans=data['ans']
-                        //$("#target").html("<a>"+data['text']+'</a>'+data['dic']);
                         $("#target").html(ans);
-                        //console.log(data['text']);
-                        //console.log(data['dic']);
                         $(document).mousemove(function (en) {
                            var xPos = parseInt(en.pageX+15) + "px";
                            var yPos = parseInt(en.pageY+12) + "px";
@@ -106,10 +123,11 @@
                          });
                         $(".hyper").hover(
                               function(){
-				var img_src=$(this).attr('href');
-                                $('img').attr('src',img_src);
+					var img_src=$(this).attr('href');
                                 timer=setTimeout(function(){
-                                      $("#addo").show(500);
+				        img_src=func(img_src);
+                                        $('img').attr('src',img_src);
+                               		$("#addo").show(500);
                                 },1000);
                    	      },
                               function(){
@@ -122,6 +140,7 @@
             });
         });
     </script>
+	
 </head>
 <body>
 <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
