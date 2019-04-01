@@ -11,6 +11,7 @@ import bs4
 headers = {
     'User-Agent':'Chrome/68.0.3440.106'
 }
+
 def getHTMLText(url):
     try:
         r=requests.get(url,headers=headers)
@@ -20,18 +21,6 @@ def getHTMLText(url):
     except:
         return ''
 
-def get_img(html):
-    try:
-        soup=BeautifulSoup(html,'lxml')
-        node=soup.find('div', {'class': 'fullImageLink','id':'file'})
-        img_node = node.find('img')
-        if not img_node:return ""
-        img=img_node['src']
-        img="https:"+img
-        return img
-    except:
-        return ""
-
 def parse_(html):
     try:
         html = etree.HTML(html)
@@ -39,7 +28,7 @@ def parse_(html):
         img="https:"+img
         return img
     except:
-        return 0
+        return ""
 
 
 def func(url):
@@ -54,13 +43,10 @@ def hello(request):
 
 
 from pycorenlp import StanfordCoreNLP
-#nlp = StanfordCoreNLP('http://202.120.38.146:8098')
-
 def ner(text):
-    #nlp = StanfordCoreNLP('http://202.120.38.146:8098/')
     nlp = StanfordCoreNLP('http://localhost:8098/')
     output = nlp.annotate(text, properties={
-        'annotators': 'tokenize,ssplit,ner',
+        'annotators': 'tokenize,pos,ssplit,ner,lemma',
         'outputFormat': 'json',
     })
     return output['sentences']
@@ -75,12 +61,12 @@ def trim(text):
             tmp=obj1['text']
             start=obj1['tokenBegin']
             end=obj1['tokenEnd']
-            all_obj[start]={'originalText':tmp}
+            all_obj[start]={'originalText':tmp,'pos':'N','lemma':tmp}
             for num in range(start+1,end):
                 all_obj[num]=""
         for obj in all_obj:
             if not obj:continue
-            lst.append(obj['originalText'])
+            lst.append([obj['originalText'],obj['lemma'],obj['pos']])
     return lst
 
 
@@ -203,22 +189,31 @@ def linking(request):
            m[line[0].lower()]=line[1]
         except:
            continue
+    propert=['N','NN','NNS','NNP','NNPS','PRP']
     if request.method == "POST":
         ans=""
         text=request.POST['text']
         dic=trim(text)
         nxt_list=[]
         for obj in dic:
-            wrd=obj.lower()
+            flag=False
+            for na in propert:
+                if obj[2]==na:
+                    flag=True
+                    break
+            if not flag:
+               ans+=obj[0]+" " 
+               continue
+            wrd=obj[1].lower()
             if wrd in m:
                t1=m[wrd]
                if not t1:
-                  ans+=obj+" "
+                  ans+=obj[0]+" "
                   continue
-               ans_tmp="<a href=\'"+t1+"\' class=\'hyper\' target=\'_blank\'>"+obj+"</a>"
+               ans_tmp="<a href=\'"+t1+"\' class=\'hyper\' target=\'_blank\'>"+obj[0]+"</a>"
                ans+=ans_tmp+" "
             else:
-               ans+=obj+" "
+               ans+=obj[0]+" "
         return HttpResponse(
             json.dumps({
                 "ans": ans,
