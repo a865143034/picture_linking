@@ -181,7 +181,7 @@ def explaining(request):
      
 
 def linking(request):
-    f=open('output_enwiki.txt','r')
+    f=open('lass_output.txt','r')
     m={}
     for line in f:
         try:
